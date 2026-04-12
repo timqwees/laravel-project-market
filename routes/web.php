@@ -100,9 +100,14 @@ Route::get('/search', function () {
 
 // Условия использования и политика конфиденциальности
 Route::get('/terms/access', function () {
-  return view('terms.access');
+  return view('term.access');
 })->name('term.access');
 
 Route::get('/terms/politic', function () {
-  return view('terms.politic');
+  return view('term.politic');
 })->name('term.politic');
+
+Route::get('/messages', function () {
+  return view('messages/index');
+})->name('index');
+

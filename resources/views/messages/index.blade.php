@@ -313,5 +313,6 @@
         </div>
     </div>
 </div>
+@include('componet.content.footer')
 @endsection
 
