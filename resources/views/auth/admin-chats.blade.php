@@ -167,52 +167,58 @@
                 Все активные чаты
             </h3>
             <div class="space-y-2">
-                @if($allChats && $allChats->count() > 0)
+                @if(isset($allChats) && $allChats->count() > 0)
                     @foreach($allChats as $chat)
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <div class="flex -space-x-2">
-                                <div
-                                    class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
-                                    {{ substr($chat->client->name ?? '??', 0, 2) }}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="flex -space-x-2">
+                                    <div
+                                        class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                                        {{ substr($chat->client->name ?? '??', 0, 2) }}
+                                    </div>
+                                    <div
+                                        class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                                        {{ substr($chat->performer->name ?? '??', 0, 2) }}
+                                    </div>
                                 </div>
-                                <div
-                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
-                                    {{ substr($chat->performer->name ?? '??', 0, 2) }}
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        Заказ #{{ $chat->order_id }}: {{ Str::limit($chat->order->title ?? 'Без названия', 30) }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        @if($chat->manager)
+                                            <span class="text-amber-600">Менеджер: {{ $chat->manager->name }}</span>
+                                        @else
+                                            <span class="text-red-500">Без менеджера</span>
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">
-                                    Заказ #{{ $chat->order_id }}: {{ Str::limit($chat->order->title ?? 'Без названия', 30) }}
-                                </p>
-                                <p class="text-xs text-gray-500">
-                                    @if($chat->manager)
-                                        <span class="text-amber-600">Менеджер: {{ $chat->manager->name }}</span>
-                                    @else
-                                        <span class="text-red-500">Без менеджера</span>
-                                    @endif
-                                </p>
+                            <div class="flex items-center gap-2">
+                                @if($chat->manager && Auth::user()->isSuperAdmin())
+                                    <form action="{{ route('admin.chats.force-unassign', $chat) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Отключить менеджера {{ $chat->manager->name }} от этого чата?')">
+                                        @csrf
+                                        <button type="submit"
+                                            class="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                                            title="Отключить менеджера">
+                                            <i class="fa fa-user-times"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('chats.show', $chat) }}" target="_blank"
+                                    class="text-sm text-blue-600 hover:text-blue-800">
+                                    Открыть →
+                                </a>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            @if($chat->manager && Auth::user()->isSuperAdmin())
-                                <form action="{{ route('admin.chats.force-unassign', $chat) }}" method="POST" class="inline"
-                                    onsubmit="return confirm('Отключить менеджера {{ $chat->manager->name }} от этого чата?')">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                                        title="Отключить менеджера">
-                                        <i class="fa fa-user-times"></i>
-                                    </button>
-                                </form>
-                            @endif
-                            <a href="{{ route('chats.show', $chat) }}" target="_blank"
-                                class="text-sm text-blue-600 hover:text-blue-800">
-                                Открыть →
-                            </a>
-                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fa fa-comments text-4xl mb-2"></i>
+                        <p>Нет активных чатов</p>
                     </div>
-                @endforeach
+                @endif
             </div>
         </div>
     @endif
