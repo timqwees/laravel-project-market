@@ -25,7 +25,8 @@ class ChatController extends Controller
             'messages' => function ($q) use ($user) {
                 $q->where(function ($qq) use ($user) {
                     $qq->whereNull('recipient_id')
-                        ->orWhere('recipient_id', $user->id);
+                        ->orWhere('recipient_id', $user->id)
+                        ->orWhere('sender_id', $user->id);
                 })
                     ->latest()
                     ->limit(1);
@@ -66,7 +67,8 @@ class ChatController extends Controller
             'messages' => function ($q) use ($user) {
                 $q->where(function ($qq) use ($user) {
                     $qq->whereNull('recipient_id')
-                        ->orWhere('recipient_id', $user->id);
+                        ->orWhere('recipient_id', $user->id)
+                        ->orWhere('sender_id', $user->id);
                 })->orderBy('created_at');
             },
             'messages.sender',
@@ -418,7 +420,8 @@ class ChatController extends Controller
         $count = $chat->messages()
             ->where(function ($q) use ($user) {
                 $q->whereNull('recipient_id')
-                    ->orWhere('recipient_id', $user->id);
+                    ->orWhere('recipient_id', $user->id)
+                    ->orWhere('sender_id', $user->id);
             })
             ->count();
         $unread = $chat->unreadCount($user->id);
