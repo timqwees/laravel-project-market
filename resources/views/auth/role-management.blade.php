@@ -86,57 +86,62 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             @foreach($users as $user)
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white font-bold">
-                                                {{ substr($user->name, 0, 1) }}
-                                            </div>
-                                            <span class="font-medium text-slate-900">{{ $user->name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-600">{{ $user->email }}</td>
-                                    <td class="px-6 py-4">
-                                        @php
-                                            $roleColors = [
-                                                'client' => 'bg-blue-100 text-blue-700',
-                                                'performer' => 'bg-green-100 text-green-700',
-                                                'manager' => 'bg-amber-100 text-amber-700',
-                                                'admin' => 'bg-red-100 text-red-700',
-                                            ];
-                                            $roleLabels = [
-                                                'client' => 'Заказчик',
-                                                'performer' => 'Исполнитель',
-                                                'manager' => 'Менеджер',
-                                                'admin' => 'Администратор',
-                                            ];
-                                        @endphp
-                                        <span class="px-3 py-1 rounded-lg text-sm font-medium {{ $roleColors[$user->role] ?? 'bg-slate-100 text-slate-700' }}">
-                                            {{ $roleLabels[$user->role] ?? $user->role }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-600">
-                                        {{ $user->created_at->format('d.m.Y') }}
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @if($user->id !== auth()->id())
-                                            <form action="{{ route('admin.users.role.update', $user) }}" method="POST" class="flex gap-2">
-                                                @csrf
-                                                <select name="role"
-                                                    class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    onchange="this.form.submit()">
-                                                    @foreach($roles as $key => $label)
-                                                        <option value="{{ $key }}" {{ $user->role === $key ? 'selected' : '' }}>
-                                                            {{ $label }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </form>
-                                        @else
-                                            <span class="text-slate-400 text-sm">Нельзя изменить</span>
-                                        @endif
-                                    </td>
-                                </tr>
+                                            <tr class="hover:bg-slate-50 transition-colors">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white font-bold">
+                                                            {{ substr($user->name, 0, 1) }}
+                                                        </div>
+                                                        <span class="font-medium text-slate-900">{{ $user->name }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 text-slate-600">{{ $user->email }}</td>
+                                                <td class="px-6 py-4">
+                                                    @php
+                                                        $roleColors = [
+                                                            'client' => 'bg-blue-100 text-blue-700',
+                                                            'performer' => 'bg-green-100 text-green-700',
+                                                            'manager' => 'bg-amber-100 text-amber-700',
+                                                            'admin' => 'bg-red-100 text-red-700',
+                                                            'super_admin' => 'bg-purple-100 text-purple-700',
+                                                        ];
+                                                        $roleLabels = [
+                                                            'client' => 'Заказчик',
+                                                            'performer' => 'Исполнитель',
+                                                            'manager' => 'Менеджер',
+                                                            'admin' => 'Администратор',
+                                                            'super_admin' => 'Главный администратор',
+                                                        ];
+                                                    @endphp
+                                <span
+                                                        class="px-3 py-1 rounded-lg text-sm font-medium {{ $roleColors[$user->role] ?? 'bg-slate-100 text-slate-700' }}">
+                                                        {{ $roleLabels[$user->role] ?? $user->role }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-slate-600">
+                                                    {{ $user->created_at->format('d.m.Y') }}
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    @if($user->id !== auth()->id())
+                                                        <form action="{{ route('admin.users.role.update', $user) }}" method="POST"
+                                                            class="flex gap-2">
+                                                            @csrf
+                                                            <select name="role"
+                                                                class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                onchange="this.form.submit()">
+                                                                @foreach($roles as $key => $label)
+                                                                    <option value="{{ $key }}" {{ $user->role === $key ? 'selected' : '' }}>
+                                                                        {{ $label }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-slate-400 text-sm">Нельзя изменить</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -151,7 +156,7 @@
             </div>
 
             <!-- Legend -->
-            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="bg-white rounded-xl border border-slate-200 p-4">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-3 h-3 rounded-full bg-blue-500"></span>
@@ -179,6 +184,13 @@
                         <span class="font-medium text-slate-900">Администратор</span>
                     </div>
                     <p class="text-sm text-slate-600">Полный доступ к управлению платформой</p>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                        <span class="font-medium text-slate-900">Главный администратор</span>
+                    </div>
+                    <p class="text-sm text-slate-600">Может отключать менеджеров от чатов и управлять всеми ролями</p>
                 </div>
             </div>
         </div>

@@ -16,6 +16,7 @@ class RoleManagementController extends Controller
         'performer' => 'Исполнитель',
         'manager' => 'Менеджер',
         'admin' => 'Администратор',
+        'super_admin' => 'Главный администратор',
     ];
 
     /**
