@@ -206,6 +206,18 @@
                                         </button>
                                     </form>
                                 @endif
+                                @if($chat->status !== 'active' && (Auth::user()->isManager() && $chat->manager_id === Auth::id() || Auth::user()->isSuperAdmin()))
+                                    <form action="{{ route('admin.chats.delete', $chat) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Удалить этот чат навсегда? Это действие нельзя отменить.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                                            title="Удалить чат">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                                 <a href="{{ route('chats.show', $chat) }}" target="_blank"
                                     class="text-sm text-blue-600 hover:text-blue-800">
                                     Открыть →

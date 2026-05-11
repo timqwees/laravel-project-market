@@ -371,6 +371,39 @@ class ChatController extends Controller
     }
 
     /**
+     * Удалить чат (только для менеджеров и главных администраторов)
+     * Чат должен быть закрыт или возобновлен
+     */
+    public function delete(Chat $chat)
+    {
+        $user = auth()->user();
+
+        // Проверка прав: только менеджер этого чата или главный администратор
+        if (!$user->isManager() && !$user->isSuperAdmin()) {
+            abort(403, 'Только менеджер или главный администратор может удалять чаты');
+        }
+
+        // Менеджер может удалять только свои чаты, главный администратор - любые
+        if ($user->isManager() && $chat->manager_id !== $user->id) {
+            abort(403, 'Вы можете удалять только свои чаты');
+        }
+
+        // Проверка что чат закрыт или возобновлен
+        if ($chat->status === 'active') {
+            return back()->with('error', 'Нельзя удалить активный чат. Сначала закройте или возобновите заказ.');
+        }
+
+        // Удаляем все сообщения чата
+        $chat->messages()->delete();
+
+        // Удаляем сам чат
+        $chat->delete();
+
+        return redirect()->route('admin.chats')
+            ->with('success', 'Чат успешно удален');
+    }
+
+    /**
      * Автоматически назначить текущему менеджеру чаты без менеджера (если есть свободный лимит)
      */
     private function autoAssignWaitingChatsToManager(User $manager): void
