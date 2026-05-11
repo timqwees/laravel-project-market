@@ -121,6 +121,7 @@ class User extends Authenticatable
             'performer' => 'Исполнитель',
             'manager' => 'Менеджер',
             'admin' => 'Администратор',
+            'super_admin' => 'Главный администратор',
             default => 'Пользователь',
         };
     }
@@ -135,6 +136,7 @@ class User extends Authenticatable
             'performer' => 'bg-green-100 text-green-800',
             'manager' => 'bg-amber-100 text-amber-800',
             'admin' => 'bg-red-100 text-red-800',
+            'super_admin' => 'bg-purple-100 text-purple-800',
             default => 'bg-gray-100 text-gray-800',
         };
     }

@@ -122,7 +122,7 @@
                             $orderCreator = $order->user;
 
                             // Политика безопасности: заказчик/исполнитель общаются через менеджера
-                            $otherUser = ($user->isManager() || $user->isAdmin())
+                            $otherUser = ($user->isManager() || $user->isAdmin() || $user->isSuperAdmin())
                                 ? $activeChat->getOtherParticipant($user->id)
                                 : $manager;
                         @endphp
@@ -131,7 +131,7 @@
                         <div class="p-4 border-b border-gray-100">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-3">
-                                    @if($user->isManager() || $user->isAdmin())
+                                    @if($user->isManager() || $user->isAdmin() || $user->isSuperAdmin())
                                         {{-- Для менеджера - показываем обоих участников --}}
                                         <div class="flex -space-x-2 mr-2">
                                             <div
@@ -183,7 +183,7 @@
                             </div>
 
                             {{-- Информация о заказе для менеджера --}}
-                            @if($user->isManager() || $user->isAdmin())
+                            @if($user->isManager() || $user->isAdmin() || $user->isSuperAdmin())
                                 <div class="bg-gray-50 rounded-lg p-3 mb-3">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
@@ -205,7 +205,7 @@
                             @endif
 
                             {{-- Кнопки управления для менеджера --}}
-                            @if(($user->isManager() || $user->isAdmin()) && $activeChat->status === 'active')
+                            @if(($user->isManager() || $user->isAdmin() || $user->isSuperAdmin()) && $activeChat->status === 'active')
                                 <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 flex-wrap">
                                     {{-- Переключатель режима общения --}}
                                     <span class="text-xs text-gray-500 mr-2">Режим общения:</span>
@@ -215,7 +215,7 @@
                                         <input type="hidden" name="participant" value="client">
                                         <button type="submit"
                                             class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5
-                                                                                    {{ $activeParticipant === 'client' ? 'bg-blue-100 text-blue-700 border border-blue-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                                                                                                                                                            {{ $activeParticipant === 'client' ? 'bg-blue-100 text-blue-700 border border-blue-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
                                             <div
                                                 class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">
                                                 {{ $client ? substr($client->name, 0, 1) : 'C' }}
@@ -232,7 +232,7 @@
                                         <input type="hidden" name="participant" value="performer">
                                         <button type="submit"
                                             class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5
-                                                                                    {{ $activeParticipant === 'performer' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                                                                                                                                                            {{ $activeParticipant === 'performer' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
                                             <div
                                                 class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold">
                                                 {{ $performer ? substr($performer->name, 0, 1) : 'I' }}
@@ -317,7 +317,7 @@
                                             <div class="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                                                 <p class="text-xs text-gray-500 mb-1">
                                                     {{ $message->sender->name }}
-                                                    @if($user->isManager() || $user->isAdmin())
+                                                    @if($user->isManager() || $user->isAdmin() || $user->isSuperAdmin())
                                                         @if($message->sender_id === $activeChat->client_id)
                                                             <span class="text-blue-600">(Клиент)</span>
                                                         @elseif($message->sender_id === $activeChat->performer_id)
@@ -350,7 +350,7 @@
                                 <form action="{{ route('chats.message', $activeChat) }}" method="POST"
                                     class="flex items-center gap-2">
                                     @csrf
-                                    @if($user->isManager() || $user->isAdmin())
+                                    @if($user->isManager() || $user->isAdmin() || $user->isSuperAdmin())
                                         <input type="hidden" name="participant"
                                             value="{{ session('chat_' . $activeChat->id . '_participant', 'client') }}">
                                     @endif
@@ -392,7 +392,7 @@
                                             });
                                     }, 5000);
                                 @endif
-                                                            });
+                                                                                                            });
                         </script>
                     @else
                         <!-- Empty State -->

@@ -34,9 +34,9 @@ class AdminChatController extends Controller
             ->orderByDesc('last_message_at')
             ->get();
 
-        // Все активные чаты (для админа)
+        // Все активные чаты (для админа и главного админа)
         $allChats = null;
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
             $allChats = Chat::with(['order', 'client', 'performer', 'manager'])
                 ->where('status', 'active')
                 ->orderByDesc('last_message_at')
