@@ -164,7 +164,7 @@
         <div>
             <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <i class="fa fa-list text-gray-500 mr-2"></i>
-                Все активные чаты
+                Все чаты (активные и закрытые)
             </h3>
             <div class="space-y-2">
                 @if(isset($allChats) && $allChats->count() > 0)
@@ -191,6 +191,10 @@
                                         @else
                                             <span class="text-red-500">Без менеджера</span>
                                         @endif
+                                        •
+                                        <span class="{{ $chat->status === 'active' ? 'text-green-600' : 'text-gray-500' }}">
+                                            {{ $chat->status === 'active' ? 'Активен' : 'Закрыт' }}
+                                        </span>
                                     </p>
                                 </div>
                             </div>
