@@ -94,6 +94,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
     /**
      * Проверка доступа к управлению ролями по email
      */
@@ -147,7 +152,7 @@ class User extends Authenticatable
      */
     public function activeManagedChatsCount(): int
     {
-        if (!$this->isManager() && !$this->isAdmin()) {
+        if (!$this->isManager() && !$this->isAdmin() && !$this->isSuperAdmin()) {
             return 0;
         }
         return $this->managedChats()->count();
@@ -158,7 +163,7 @@ class User extends Authenticatable
      */
     public function canTakeMoreOrders(): bool
     {
-        if (!$this->isManager() && !$this->isAdmin()) {
+        if (!$this->isManager() && !$this->isAdmin() && !$this->isSuperAdmin()) {
             return false;
         }
         return $this->activeManagedChatsCount() < 2;
@@ -170,7 +175,7 @@ class User extends Authenticatable
      */
     public static function findAvailableManager(): ?self
     {
-        return self::whereIn('role', ['manager', 'admin'])
+        return self::whereIn('role', ['manager', 'admin', 'super_admin'])
             ->withCount([
                 'managedChats as active_managed_chats_count' => function ($q) {
                     $q->where('status', 'active');

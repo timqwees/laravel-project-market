@@ -26,7 +26,7 @@ class Profile extends Controller
         $myChats = null;
         $allChats = null;
 
-        if (auth()->user()->isManager() || auth()->user()->isAdmin()) {
+        if (auth()->user()->isManager() || auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()) {
             $unassignedChats = \App\Models\Chat::whereNull('manager_id')
                 ->where('status', 'active')
                 ->with(['client', 'performer', 'order'])
@@ -37,7 +37,7 @@ class Profile extends Controller
                 ->with(['client', 'performer', 'order'])
                 ->get();
 
-            if (auth()->user()->isAdmin()) {
+            if (auth()->user()->isAdmin() || auth()->user()->isSuperAdmin()) {
                 $allChats = \App\Models\Chat::where('status', 'active')
                     ->with(['client', 'performer', 'manager', 'order'])
                     ->get();

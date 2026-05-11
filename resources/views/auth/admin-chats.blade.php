@@ -160,7 +160,7 @@
     </div>
 
     <!-- Все чаты (для админа) -->
-    @if($allChats && auth()->user()->isAdmin())
+    @if(Auth::user()->isManager() || Auth::user()->isAdmin() || Auth::user()->isSuperAdmin())
         <div>
             <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <i class="fa fa-list text-gray-500 mr-2"></i>
@@ -193,10 +193,23 @@
                                 </p>
                             </div>
                         </div>
-                        <a href="{{ route('chats.show', $chat) }}" target="_blank"
-                            class="text-sm text-blue-600 hover:text-blue-800">
-                            Открыть →
-                        </a>
+                        <div class="flex items-center gap-2">
+                            @if($chat->manager && Auth::user()->isSuperAdmin())
+                                <form action="{{ route('admin.chats.force-unassign', $chat) }}" method="POST" class="inline"
+                                    onsubmit="return confirm('Отключить менеджера {{ $chat->manager->name }} от этого чата?')">
+                                    @csrf
+                                    <button type="submit"
+                                        class="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                                        title="Отключить менеджера">
+                                        <i class="fa fa-user-times"></i>
+                                    </button>
+                                </form>
+                            @endif
+                            <a href="{{ route('chats.show', $chat) }}" target="_blank"
+                                class="text-sm text-blue-600 hover:text-blue-800">
+                                Открыть →
+                            </a>
+                        </div>
                     </div>
                 @endforeach
             </div>

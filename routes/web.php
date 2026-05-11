@@ -98,6 +98,7 @@ Route::prefix('admin')->middleware(['auth', 'role.admin'])->group(function () {
     Route::get('/chats', [AdminChatController::class, 'index'])->name('admin.chats');
     Route::post('/chats/{chat}/assign', [AdminChatController::class, 'assignToMe'])->name('admin.chats.assign');
     Route::delete('/chats/{chat}/unassign', [AdminChatController::class, 'unassign'])->name('admin.chats.unassign');
+    Route::post('/chats/{chat}/force-unassign', [AdminChatController::class, 'forceUnassign'])->name('admin.chats.force-unassign');
 });
 
 // Условия использования и политика конфиденциальности

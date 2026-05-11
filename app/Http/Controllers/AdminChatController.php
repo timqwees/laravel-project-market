@@ -15,8 +15,8 @@ class AdminChatController extends Controller
     {
         $user = auth()->user();
 
-        // Только менеджеры и админы
-        if (!$user->isManager() && !$user->isAdmin()) {
+        // Только менеджеры, админы и главные админы
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403, 'Доступ запрещен');
         }
 
@@ -53,7 +53,7 @@ class AdminChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isManager() && !$user->isAdmin()) {
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403);
         }
 
@@ -90,8 +90,8 @@ class AdminChatController extends Controller
     {
         $user = auth()->user();
 
-        // Только текущий менеджер или админ может отказаться
-        if ($chat->manager_id !== $user->id && !$user->isAdmin()) {
+        // Только текущий менеджер, админ или главный админ может отказаться
+        if ($chat->manager_id !== $user->id && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403);
         }
 
@@ -106,5 +106,36 @@ class AdminChatController extends Controller
         ]);
 
         return back()->with('success', 'Вы отключены от чата');
+    }
+
+    /**
+     * Принудительно отключить менеджера от чата (только для главных админов)
+     */
+    public function forceUnassign(Chat $chat)
+    {
+        $user = auth()->user();
+
+        // Только главный админ может принудительно отключать менеджеров
+        if (!$user->isSuperAdmin()) {
+            abort(403, 'Только главные администраторы могут выполнять это действие');
+        }
+
+        if (!$chat->manager_id) {
+            return back()->with('error', 'Этот чат не имеет назначенного менеджера');
+        }
+
+        $managerName = $chat->manager->name ?? 'Неизвестный менеджер';
+
+        $chat->update(['manager_id' => null]);
+
+        // Системное сообщение о принудительном отключении
+        \App\Models\Message::create([
+            'chat_id' => $chat->id,
+            'sender_id' => $user->id,
+            'content' => "Главный администратор {$user->name} отключил менеджера {$managerName} от диалога",
+            'type' => 'system',
+        ]);
+
+        return back()->with('success', "Менеджер {$managerName} отключен от чата");
     }
 }
