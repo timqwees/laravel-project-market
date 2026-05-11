@@ -34,10 +34,17 @@ class AdminChatController extends Controller
             ->orderByDesc('last_message_at')
             ->get();
 
-        // Все чаты (активные и закрытые) для админа и главного админа
+        // Все чаты (активные и закрытые) для админа, главного админа и менеджера
         $allChats = null;
         if ($user->isAdmin() || $user->isSuperAdmin()) {
+            // Админы и главные админы видят все чаты
             $allChats = Chat::with(['order', 'client', 'performer', 'manager'])
+                ->orderByDesc('last_message_at')
+                ->get();
+        } elseif ($user->isManager()) {
+            // Менеджеры видят только свои чаты (включая закрытые)
+            $allChats = Chat::with(['order', 'client', 'performer', 'manager'])
+                ->where('manager_id', $user->id)
                 ->orderByDesc('last_message_at')
                 ->get();
         }

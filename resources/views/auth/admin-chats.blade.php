@@ -164,7 +164,11 @@
         <div>
             <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <i class="fa fa-list text-gray-500 mr-2"></i>
-                Все чаты (активные и закрытые)
+                @if(Auth::user()->isAdmin() || Auth::user()->isSuperAdmin())
+                    Все чаты (активные и закрытые)
+                @else
+                    Мои чаты (активные и закрытые)
+                @endif
             </h3>
             <div class="space-y-2">
                 @if(isset($allChats) && $allChats->count() > 0)
