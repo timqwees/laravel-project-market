@@ -100,13 +100,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Проверка доступа к управлению ролями по email
+     * Проверка доступа к управлению ролями
      */
     public function canManageRoles(): bool
     {
         $allowedEmails = [
             'timqwees@gmail.com',
         ];
+
+        // Главные администраторы имеют доступ к управлению ролями
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
 
         return in_array($this->email, $allowedEmails);
     }

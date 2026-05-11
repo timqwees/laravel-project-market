@@ -167,7 +167,8 @@
                 Все активные чаты
             </h3>
             <div class="space-y-2">
-                @foreach($allChats as $chat)
+                @if($allChats && $allChats->count() > 0)
+                    @foreach($allChats as $chat)
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div class="flex items-center gap-3">
                             <div class="flex -space-x-2">
