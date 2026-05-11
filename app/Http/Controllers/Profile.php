@@ -21,7 +21,30 @@ class Profile extends Controller
 
         $userStats = Functions::getUserStats(auth()->id());
 
-        return view('auth.profile', compact('userOrders', 'userStats'));
+        // Prepare chat variables for admin/manager users
+        $unassignedChats = null;
+        $myChats = null;
+        $allChats = null;
+
+        if (auth()->user()->isManager() || auth()->user()->isAdmin()) {
+            $unassignedChats = \App\Models\Chat::whereNull('manager_id')
+                ->where('status', 'active')
+                ->with(['client', 'performer', 'order'])
+                ->get();
+
+            $myChats = \App\Models\Chat::where('manager_id', auth()->id())
+                ->where('status', 'active')
+                ->with(['client', 'performer', 'order'])
+                ->get();
+
+            if (auth()->user()->isAdmin()) {
+                $allChats = \App\Models\Chat::where('status', 'active')
+                    ->with(['client', 'performer', 'manager', 'order'])
+                    ->get();
+            }
+        }
+
+        return view('auth.profile', compact('userOrders', 'userStats', 'unassignedChats', 'myChats', 'allChats'));
     }
     public function UpdateProfile(Request $data)
     {
