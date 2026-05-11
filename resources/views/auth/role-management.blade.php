@@ -127,7 +127,12 @@
                                                         $currentUser = auth()->user();
                                                         $canEdit = $user->id !== $currentUser->id && 
                                                                   ($currentUser->isSuperAdmin() || 
-                                                                   (!$currentUser->isSuperAdmin() && !in_array($user->role, ['admin', 'super_admin'])));
+                                                                   ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() && !in_array($user->role, ['admin', 'super_admin'])));
+                                                        
+                                                        // Дополнительная проверка: главные админы не могут редактировать других главных админов (кроме timqwees@gmail.com)
+                                                        if ($currentUser->isSuperAdmin() && $user->role === 'super_admin' && $currentUser->email !== 'timqwees@gmail.com') {
+                                                            $canEdit = false;
+                                                        }
                                                     @endphp
                                                     @if($canEdit)
                                                         <form action="{{ route('admin.users.role.update', $user) }}" method="POST" class="flex gap-2">
@@ -146,6 +151,8 @@
                                                         <span class="text-slate-400 text-sm">
                                                             @if($user->id === auth()->id())
                                                                 Нельзя изменить
+                                                            @elseif($currentUser->isSuperAdmin() && $user->role === 'super_admin' && $currentUser->email !== 'timqwees@gmail.com')
+                                                                Только timqwees@gmail.com может изменять роли главных админов
                                                             @else
                                                                 Недостаточно прав
                                                             @endif

@@ -58,12 +58,21 @@ class RoleManagementController extends Controller
         }
 
         // Обычные администраторы не могут изменять роли других администраторов и главных админов
+        // Главные администраторы не могут изменять роли других главных админов (кроме timqwees@gmail.com)
         $currentUser = auth()->user();
+
         if (
             $currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
             in_array($user->role, ['admin', 'super_admin'])
         ) {
             return back()->with('error', 'Обычные администраторы не могут изменять роли других администраторов');
+        }
+
+        if (
+            $currentUser->isSuperAdmin() && $user->role === 'super_admin' &&
+            $currentUser->email !== 'timqwees@gmail.com'
+        ) {
+            return back()->with('error', 'Только timqwees@gmail.com может изменять роли главных администраторов');
         }
 
         $oldRole = $user->role;
