@@ -176,7 +176,7 @@ class User extends Authenticatable
                     $q->where('status', 'active');
                 }
             ])
-            ->having('active_managed_chats_count', '<', 2)
+            ->where('active_managed_chats_count', '<', 2)
             ->orderBy('active_managed_chats_count')
             ->orderBy('id')
             ->first();
