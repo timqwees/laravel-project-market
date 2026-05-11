@@ -24,6 +24,19 @@ class RoleManagementController extends Controller
      */
     public function index()
     {
+        // Исключение для timqwees@gmail.com - полный доступ без проверки роли
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->email === 'timqwees@gmail.com') {
+            $users = User::select('id', 'name', 'email', 'role', 'created_at')
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+
+            return view('auth.role-management', [
+                'users' => $users,
+                'roles' => $this->availableRoles,
+            ]);
+        }
+
         $users = User::select('id', 'name', 'email', 'role', 'created_at')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -52,27 +65,31 @@ class RoleManagementController extends Controller
                 ->with('error', 'Ошибка при обновлении роли');
         }
 
-        // Нельзя изменить роль самому себе
-        if ($user->id === auth()->id()) {
+        // Нельзя изменить роль самому себе (кроме timqwees@gmail.com)
+        $currentUser = auth()->user();
+        if ($user->id === $currentUser->id && $currentUser->email !== 'timqwees@gmail.com') {
             return back()->with('error', 'Нельзя изменить свою собственную роль');
         }
 
         // Обычные администраторы не могут изменять роли других администраторов и главных админов
         // Главные администраторы не могут изменять роли других главных админов (кроме timqwees@gmail.com)
+        // timqwees@gmail.com может изменять любую роль без ограничений
         $currentUser = auth()->user();
 
-        if (
-            $currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
-            in_array($user->role, ['admin', 'super_admin'])
-        ) {
-            return back()->with('error', 'Обычные администраторы не могут изменять роли других администраторов');
-        }
+        // Исключение для timqwees@gmail.com - полный доступ
+        if ($currentUser->email === 'timqwees@gmail.com') {
+            // Пропускаем все проверки для timqwees@gmail.com
+        } else {
+            if (
+                $currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
+                in_array($user->role, ['admin', 'super_admin'])
+            ) {
+                return back()->with('error', 'Обычные администраторы не могут изменять роли других администраторов');
+            }
 
-        if (
-            $currentUser->isSuperAdmin() && $user->role === 'super_admin' &&
-            $currentUser->email !== 'timqwees@gmail.com'
-        ) {
-            return back()->with('error', 'Только timqwees@gmail.com может изменять роли главных администраторов');
+            if ($currentUser->isSuperAdmin() && $user->role === 'super_admin') {
+                return back()->with('error', 'Только timqwees@gmail.com может изменять роли главных администраторов');
+            }
         }
 
         $oldRole = $user->role;

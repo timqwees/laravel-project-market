@@ -125,13 +125,19 @@
                                                 <td class="px-6 py-4">
                                                     @php
                                                         $currentUser = auth()->user();
-                                                        $canEdit = $user->id !== $currentUser->id && 
-                                                                  ($currentUser->isSuperAdmin() || 
-                                                                   ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() && !in_array($user->role, ['admin', 'super_admin'])));
                                                         
-                                                        // Дополнительная проверка: главные админы не могут редактировать других главных админов (кроме timqwees@gmail.com)
-                                                        if ($currentUser->isSuperAdmin() && $user->role === 'super_admin' && $currentUser->email !== 'timqwees@gmail.com') {
-                                                            $canEdit = false;
+                                                        // Исключение для timqwees@gmail.com - полный доступ
+                                                        if ($currentUser->email === 'timqwees@gmail.com') {
+                                                            $canEdit = true;
+                                                        } else {
+                                                            $canEdit = $user->id !== $currentUser->id && 
+                                                                      ($currentUser->isSuperAdmin() || 
+                                                                       ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() && !in_array($user->role, ['admin', 'super_admin'])));
+                                                            
+                                                            // Дополнительная проверка: главные админы не могут редактировать других главных админов
+                                                            if ($currentUser->isSuperAdmin() && $user->role === 'super_admin') {
+                                                                $canEdit = false;
+                                                            }
                                                         }
                                                     @endphp
                                                     @if($canEdit)
@@ -149,10 +155,10 @@
                                                         </form>
                                                     @else
                                                         <span class="text-slate-400 text-sm">
-                                                            @if($user->id === auth()->id())
+                                                            @if($currentUser->email === 'timqwees@gmail.com')
+                                                                <!-- Для timqwees@gmail.com всегда доступен редактор -->
+                                                            @elseif($user->id === auth()->id())
                                                                 Нельзя изменить
-                                                            @elseif($currentUser->isSuperAdmin() && $user->role === 'super_admin' && $currentUser->email !== 'timqwees@gmail.com')
-                                                                Только timqwees@gmail.com может изменять роли главных админов
                                                             @else
                                                                 Недостаточно прав
                                                             @endif
