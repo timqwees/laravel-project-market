@@ -158,7 +158,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isManager() && !$user->isAdmin()) {
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403);
         }
 
@@ -217,7 +217,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->isManager() && !$user->isAdmin()) {
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403);
         }
 
@@ -246,12 +246,12 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Только менеджер этого чата или админ
-        if (!$user->isManager() && !$user->isAdmin()) {
+        // Только менеджер этого чата, админ или главный админ
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403, 'Только менеджер может отклонить исполнителя');
         }
 
-        if ($chat->manager_id !== $user->id && !$user->isAdmin()) {
+        if ($chat->manager_id !== $user->id && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403, 'Вы не назначены менеджером этого чата');
         }
 
@@ -297,8 +297,8 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Только админ может возобновить заказ
-        if (!$user->isAdmin()) {
+        // Только админ или главный админ может возобновить заказ
+        if (!$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403, 'Только администратор может возобновить заказ');
         }
 
@@ -339,8 +339,8 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Закрывать может менеджер этого чата или админ
-        if (!$user->isManager() && !$user->isAdmin()) {
+        // Закрывать может менеджер этого чата, админ или главный админ
+        if (!$user->isManager() && !$user->isAdmin() && !$user->isSuperAdmin()) {
             abort(403, 'Только менеджер или администратор может закрывать заказы');
         }
 
@@ -434,10 +434,18 @@ class ChatController extends Controller
      */
     private function hasAccess(Chat $chat, int $userId): bool
     {
-        return in_array($userId, [
+        $user = User::find($userId);
+
+        // Прямой доступ: клиент, исполнитель, менеджер
+        $directAccess = in_array($userId, [
             $chat->client_id,
             $chat->performer_id,
             $chat->manager_id,
         ]);
+
+        // Администраторы и главные администраторы имеют доступ ко всем чатам
+        $adminAccess = $user && ($user->isAdmin() || $user->isSuperAdmin());
+
+        return $directAccess || $adminAccess;
     }
 }
