@@ -22,8 +22,8 @@ class RoleAdminMiddleware
             abort(403, 'Доступ запрещен');
         }
 
-        // Доступ имеют: менеджеры, админы, или разрешенные email
-        if ($user->isManager() || $user->isAdmin() || in_array($user->email, $this->allowedEmails)) {
+        // Доступ имеют: менеджеры, админы, главные админы, или разрешенные email
+        if ($user->isManager() || $user->isAdmin() || $user->isSuperAdmin() || in_array($user->email, $this->allowedEmails)) {
             return $next($request);
         }
 
