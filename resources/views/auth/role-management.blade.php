@@ -123,9 +123,14 @@
                                                     {{ $user->created_at->format('d.m.Y') }}
                                                 </td>
                                                 <td class="px-6 py-4">
-                                                    @if($user->id !== auth()->id())
-                                                        <form action="{{ route('admin.users.role.update', $user) }}" method="POST"
-                                                            class="flex gap-2">
+                                                    @php
+                                                        $currentUser = auth()->user();
+                                                        $canEdit = $user->id !== $currentUser->id && 
+                                                                  ($currentUser->isSuperAdmin() || 
+                                                                   (!$currentUser->isSuperAdmin() && !in_array($user->role, ['admin', 'super_admin'])));
+                                                    @endphp
+                                                    @if($canEdit)
+                                                        <form action="{{ route('admin.users.role.update', $user) }}" method="POST" class="flex gap-2">
                                                             @csrf
                                                             <select name="role"
                                                                 class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -138,7 +143,13 @@
                                                             </select>
                                                         </form>
                                                     @else
-                                                        <span class="text-slate-400 text-sm">Нельзя изменить</span>
+                                                        <span class="text-slate-400 text-sm">
+                                                            @if($user->id === auth()->id())
+                                                                Нельзя изменить
+                                                            @else
+                                                                Недостаточно прав
+                                                            @endif
+                                                        </span>
                                                     @endif
                                                 </td>
                                             </tr>

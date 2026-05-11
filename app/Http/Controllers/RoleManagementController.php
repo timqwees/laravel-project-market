@@ -57,6 +57,15 @@ class RoleManagementController extends Controller
             return back()->with('error', 'Нельзя изменить свою собственную роль');
         }
 
+        // Обычные администраторы не могут изменять роли других администраторов и главных админов
+        $currentUser = auth()->user();
+        if (
+            $currentUser->isAdmin() && !$currentUser->isSuperAdmin() &&
+            in_array($user->role, ['admin', 'super_admin'])
+        ) {
+            return back()->with('error', 'Обычные администраторы не могут изменять роли других администраторов');
+        }
+
         $oldRole = $user->role;
         $user->role = $request->role;
         $user->save();
